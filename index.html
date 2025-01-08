@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Suhu & Kelembapan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background-color: #f4f4f9;
+    }
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 1rem 0;
+    }
+    .card {
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 300px;
+    }
+    .btn {
+      display: inline-block;
+      margin: 10px 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      color: white;
+      background: #28a745;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn.off {
+      background: #dc3545;
+    }
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Monitoring Suhu & Kelembapan</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Data Lingkungan</h2>
+      <p><strong>Suhu:</strong> <span id="suhu">--</span> °C</p>
+      <p><strong>Kelembapan:</strong> <span id="kelembapan">--</span> %</p>
+    </div>
+    <div class="card">
+      <h2>Kontrol Lampu</h2>
+      <button id="btnOn" class="btn">Nyalakan</button>
+      <button id="btnOff" class="btn off">Matikan</button>
+    </div>
+  </main>
+  <script>
+    // Ganti IP ESP8266 Anda di sini
+    const espUrl = "http://192.168.x.x";
+
+    const suhuElement = document.getElementById("suhu");
+    const kelembapanElement = document.getElementById("kelembapan");
+    const btnOn = document.getElementById("btnOn");
+    const btnOff = document.getElementById("btnOff");
+
+    // Fetch suhu & kelembapan
+    function fetchSensorData() {
+      fetch(`${espUrl}/sensor`)
+        .then(response => response.json())
+        .then(data => {
+          suhuElement.textContent = data.suhu;
+          kelembapanElement.textContent = data.kelembapan;
+        })
+        .catch(error => console.error("Error fetching data:", error));
+    }
+
+    // Nyalakan lampu
+    btnOn.addEventListener("click", () => {
+      fetch(`${espUrl}/lampu?state=on`)
+        .then(() => alert("Lampu Dinyalakan"))
+        .catch(error => console.error("Error:", error));
+    });
+
+    // Matikan lampu
+    btnOff.addEventListener("click", () => {
+      fetch(`${espUrl}/lampu?state=off`)
+        .then(() => alert("Lampu Dimatikan"))
+        .catch(error => console.error("Error:", error));
+    });
+
+    // Perbarui data setiap 5 detik
+    setInterval(fetchSensorData, 5000);
+    fetchSensorData(); // Panggil sekali di awal
+  </script>
+</body>
+</html>
